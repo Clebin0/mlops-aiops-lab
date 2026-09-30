@@ -1,35 +1,29 @@
-# Architecture
+# Arquitetura
 
-## Goal
-
-This lab demonstrates the lifecycle of an operational ML model from synthetic telemetry generation to inference and drift monitoring.
-
-## Data flow
+O projeto separa treino, inferência e monitoramento de drift para facilitar testes e evolução de cada parte.
 
 ```mermaid
 flowchart LR
-    A[Synthetic infrastructure data] --> B[Training pipeline]
-    B --> C[Model evaluation]
-    C --> D[Model artifact]
-    C --> E[Model registry metadata]
-    D --> F[FastAPI inference service]
+    A[Dados de infraestrutura] --> B[Treinamento]
+    B --> C[Avaliação]
+    C --> D[Modelo]
+    C --> E[Registro de métricas]
+    D --> F[API FastAPI]
     E --> F
-    A --> G[Reference distribution]
-    H[Current batch] --> I[PSI drift monitor]
+    A --> G[Base de referência]
+    H[Novo lote de dados] --> I[Drift com PSI]
     G --> I
-    I --> J[Human review signal]
+    I --> J[Revisão]
 ```
 
-## Components
+## Organização
 
-- `data.py`: generates reference and shifted telemetry datasets.
-- `train.py`: trains, compares and selects candidate models.
-- `model.py`: loads the selected artifact and exposes prediction helpers.
-- `registry.py`: records model metadata, metrics and artifact integrity.
-- `app.py`: exposes inference, model metadata and drift endpoints.
-- `drift.py`: calculates Population Stability Index per feature.
-- `tests/`: validates API and pipeline behavior.
+- `data.py`: geração dos dados usados no laboratório.
+- `train.py`: treinamento e comparação dos modelos.
+- `model.py`: carregamento do modelo e predição.
+- `registry.py`: versão, métricas e hash do artefato.
+- `drift.py`: cálculo de PSI por feature.
+- `app.py`: API de inferência e consulta.
+- `tests/`: testes do pipeline e da API.
 
-## Operational boundaries
-
-The dataset is synthetic and the drift detector measures distribution change, not production model degradation. A production system would add authenticated model promotion, telemetry persistence, alerting, rollback and model-performance monitoring.
+Os dados usados aqui são gerados localmente. O PSI serve para mostrar mudança de distribuição e não, sozinho, queda de qualidade do modelo.
